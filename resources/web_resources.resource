@@ -15,10 +15,11 @@ ${CAMPO_SENHA}             css:input[data-testid='password']
 ${CAMPO_SENHA_LOGIN}       css:input[data-testid='senha']
 ${RADIO_ADMIN_SIM}         css:input[value='true']
 ${RADIO_ADMIN_NAO}         css:input[value='false']
-${BOTAO_CADASTRAR}         css:button[data-testid='cadastrarUsuario']
+${BOTAO_CADASTRAR}         css:button[data-testid='cadastrar']
 ${BOTAO_ENTRAR}            css:button[data-testid='entrar']
 ${LISTAR_PRODUTOS}         css:a[data-testid='listarProdutos']
 ${ADICIONAR_CARRINHO}      css:button[data-testid='adicionarNaLista']
+${ADICIONAR_AO_CARRINHO}   css:button[data-testid='adicionar carrinho']
 ${CARRINHO}                css:a[data-testid='shopping-cart']
 ${FINALIZAR_COMPRA}        css:button[data-testid='checkout']
 
@@ -34,13 +35,45 @@ Fechar Navegador
 # --- Ações de Navegação ---
 Ir Para Página De Cadastro
     Go To    ${URL_CADASTRO}
-    Wait Until Page Contains Element    css:h1    timeout=${DEFAULT_TIMEOUT}
-    Page Should Contain    Cadastro de usuários
+    Wait Until Page Contains Element    css:h2.font-robot    timeout=${DEFAULT_TIMEOUT}
+    Element Should Contain    css:h2.font-robot    Cadastro
+    Page Should Contain    Cadastro
 
 Ir Para Página De Login
     Go To    ${URL_LOGIN}
     Wait Until Page Contains Element    css:h1    timeout=${DEFAULT_TIMEOUT}
     Page Should Contain    Login
+
+# --- BDD Keywords para Login ---
+Dado que estou na página de login
+    Ir Para Página De Login
+
+Então devo ser redirecionado para a página inicial
+    Wait Until Page Contains Element    css:div.jumbotron    timeout=${DEFAULT_TIMEOUT}
+    Wait Until Element Contains    css:div.jumbotron > h1   Serverest Store    timeout=${DEFAULT_TIMEOUT}
+    # Page Should Contain    Este é seu sistema para administrar seu ecommerce
+
+E clico no botão Entrar
+    Click Button    ${BOTAO_ENTRAR}
+
+# --- BDD Keywords para Cadastro ---
+Dado que estou na página de cadastro de usuários
+    Ir Para Página De Cadastro
+
+Dado que acesso a página de cadastro de usuários
+    Ir Para Página De Cadastro
+
+Então devo ver a mensagem de cadastro com sucesso
+    Wait Until Page Contains    Cadastro realizado com sucesso    timeout=${DEFAULT_TIMEOUT}
+    Page Should Contain    Cadastro realizado com sucesso
+
+# --- BDD Keywords para Fluxo de Compra ---
+Dado que acesso a página de login
+    Ir Para Página De Login
+
+Então devo ver a mensagem de sucesso
+    Wait Until Page Contains    Cadastro realizado com sucesso    timeout=${DEFAULT_TIMEOUT}
+    Page Should Contain    Cadastro realizado com sucesso
 
 # --- Ações de Cadastro ---
 Preencher Formulário De Cadastro
@@ -48,8 +81,8 @@ Preencher Formulário De Cadastro
     Input Text    ${CAMPO_NOME}    ${nome}
     Input Text    ${CAMPO_EMAIL}    ${email}
     Input Text    ${CAMPO_SENHA}    ${senha}
-    Run Keyword If    '${admin}' == 'true'    Select Radio Button    administrador    true
-    ...    ELSE    Select Radio Button    administrador    false
+    Run Keyword If    '${admin}' == 'true'    Select Checkbox    id=administrador
+    ...    ELSE    Unselect Checkbox    id=administrador
 
 Submeter Cadastro
     Click Button    ${BOTAO_CADASTRAR}

@@ -1,36 +1,45 @@
 *** Settings ***
 Documentation     Teste de login para o site ServeRest
-Library           SeleniumLibrary
-Test Teardown     Close Browser
+Resource          ../../resources/web_resources.resource
+Test Setup        Abrir Navegador
+Test Teardown     Fechar Navegador
 
 *** Variables ***
-${URL}            https://front.serverest.dev/login
-${BROWSER}        chrome
-${EMAIL}          fulano@qa.com
-${PASSWORD}       teste
+${EMAIL_FIXO}     fulano@qa.com
+${SENHA_FIXA}     teste
 
 *** Test Cases ***
-Cenário: Login com sucesso
+Cenário: Login com sucesso usando credenciais fixas
     Dado que estou na página de login
-    Quando preencho os campos de login
+    Quando preencho os campos com credenciais fixas
     E clico no botão Entrar
     Então devo ser redirecionado para a página inicial
 
-*** Keywords ***
-Dado que estou na página de login
-    Open Browser    ${URL}    ${BROWSER}
-    Maximize Browser Window
-    Wait Until Page Contains Element    css:h1
-    Page Should Contain    Login
+Cenário: Login após cadastro de novo usuário
+    # Primeiro cadastramos um usuário
+    Dado que crio um novo usuário no sistema
+    # Depois fazemos login com ele
+    Quando faço login com o usuário recém-criado
+    Então devo ser redirecionado para a página inicial
 
-Quando preencho os campos de login
-    Input Text    css:input[data-testid='email']    ${EMAIL}
-    Input Text    css:input[data-testid='senha']    ${PASSWORD}
+*** Keywords ***
+Quando preencho os campos com credenciais fixas
+    Input Text    ${CAMPO_EMAIL}    ${EMAIL_FIXO}
+    Input Text    ${CAMPO_SENHA_LOGIN}    ${SENHA_FIXA}
 
 E clico no botão Entrar
-    Click Button    css:button[data-testid='entrar']
+    Click Button    ${BOTAO_ENTRAR}
 
-Então devo ser redirecionado para a página inicial
-    Wait Until Page Contains Element    css:div.jumbotron    timeout=10s
-    Wait Until Element Contains    css:div.jumbotron > h1    Bem Vindo    timeout=10s
-    Page Should Contain    Este é seu sistema para administrar seu ecommerce
+Dado que crio um novo usuário no sistema
+    Ir Para Página De Cadastro
+    ${email}=    Gerar Email Aleatório
+    Set Test Variable    ${EMAIL_NOVO}    ${email}
+    Preencher Formulário De Cadastro    ${CAMPO_NOME}    ${email}    ${CAMPO_SENHA}    false
+    Submeter Cadastro
+    Verificar Cadastro Com Sucesso
+
+Quando faço login com o usuário recém-criado
+    Ir Para Página De Login
+    Input Text    ${CAMPO_EMAIL}    ${EMAIL_NOVO}
+    Input Text    ${CAMPO_SENHA_LOGIN}    ${CAMPO_SENHA}
+    Click Button    ${BOTAO_ENTRAR}
