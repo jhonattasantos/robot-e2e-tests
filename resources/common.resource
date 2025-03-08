@@ -4,6 +4,7 @@ Library           SeleniumLibrary
 Library           RequestsLibrary
 Library           String
 Library           DateTime
+Library           FakerLibrary    locale=pt_BR
 
 *** Variables ***
 # URLs de ambiente
@@ -21,9 +22,21 @@ Gerar Email Aleatório
     ${email}=            Set Variable    usuario_${random_string}_${current_time}@teste.com
     RETURN             ${email}
 
+Gerar Email Faker
+    ${email}=    FakerLibrary.Email
+    RETURN       ${email}
+
+Gerar Nome Completo
+    ${nome}=    FakerLibrary.Name
+    RETURN     ${nome}
+
+Gerar Senha Aleatória
+    ${senha}=    FakerLibrary.Password   length=8   digits=True    upper_case=True    special_chars=True
+    RETURN      ${senha}
+
 Gerar Dados De Teste
-    ${nome}=         Set Variable            Usuário Teste
-    ${email}=        Gerar Email Aleatório
+    ${nome}=         Gerar Nome Completo
+    ${email}=        Gerar Email Faker
     ${senha}=        Set Variable            teste123
     &{usuario}=      Create Dictionary       nome=${nome}    email=${email}    senha=${senha}
     RETURN         &{usuario}

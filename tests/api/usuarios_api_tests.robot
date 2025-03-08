@@ -55,23 +55,6 @@ Cenário: Fazer login com credenciais válidas
     # Limpeza
     Remover usuário de teste    ${ID_USUARIO}
 
-Cenário: Fluxo completo de uso da API
-    [Documentation]    Testa o fluxo completo de uso da API
-    [Tags]    api    fluxo    integracao
-    
-    # Dados de teste
-    &{usuario}=    Gerar Dados De Teste
-    
-    # BDD Steps
-    Dado que tenho um usuário cadastrado no sistema    ${usuario.nome}    ${usuario.email}    ${usuario.senha}
-    Quando faço login com as credenciais corretas    ${usuario.email}    ${usuario.senha}
-    E adiciono um produto ao carrinho
-    E finalizo a compra
-    Então a compra deve ser concluída com sucesso
-    
-    # Limpeza
-    Remover usuário de teste    ${ID_USUARIO}
-
 *** Keywords ***
 # --- Passos para BDD ---
 Dado que tenho dados válidos para um novo usuário

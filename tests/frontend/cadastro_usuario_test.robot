@@ -7,37 +7,31 @@ Test Timeout      2 minutes
 
 *** Test Cases ***
 Cenário: Cadastrar novo usuário com sucesso
+    [Documentation]    Cadastra um usuário como administrador
+    [Tags]    cadastro    regressao    faker    admin
+
+    ${usuario}=    Gerar dados do cadastro do usuário
+
     Dado que estou na página de cadastro de usuários
-    Quando preencho os campos do formulário como administrador
+    Quando preencho o formulário com dados aleatórios     ${usuario['nome']}    ${usuario['email']}    ${usuario['senha']}    admin=true
     E clico no botão Cadastrar
     Então devo ver a mensagem de cadastro com sucesso
+
+    Log Dados do Usuário    ${usuario}
 
 Cenário: Cadastrar usuário não administrador
+    [Documentation]    Cadastra um usuário sem ser administrador
+    [Tags]    cadastro    regressao    faker
+
+    ${usuario}=    Gerar dados do cadastro do usuário
+
     Dado que estou na página de cadastro de usuários
-    Quando preencho os campos do formulário como não administrador
+    Quando preencho o formulário com dados aleatórios    ${usuario['nome']}    ${usuario['email']}    ${usuario['senha']}   admin=false
     E clico no botão Cadastrar
     Então devo ver a mensagem de cadastro com sucesso
 
+    Log Dados do Usuário    ${usuario}
+
 *** Keywords ***
-Quando preencho os campos do formulário como administrador
-    ${email}=    Gerar Email Aleatório
-    Input Text    ${CAMPO_NOME}    ${CAMPO_NOME}
-    Input Text    ${CAMPO_EMAIL}    ${email}
-    Input Text    ${CAMPO_SENHA}    ${CAMPO_SENHA}
-    # Seleciona "Sim" para administrador
-    Select Checkbox    id=administrador
-
-Quando preencho os campos do formulário como não administrador
-    ${email}=    Gerar Email Aleatório
-    Input Text    ${CAMPO_NOME}    ${CAMPO_NOME}
-    Input Text    ${CAMPO_EMAIL}    ${email}
-    Input Text    ${CAMPO_SENHA}    ${CAMPO_SENHA}
-    # Não marca o checkbox de administrador
-    Unselect Checkbox    id=administrador
-
 E clico no botão Cadastrar
     Click Button    css:button[data-testid='cadastrar']
-
-Então devo ver a mensagem de cadastro com sucesso
-    Wait Until Page Contains    Cadastro realizado com sucesso    timeout=${DEFAULT_TIMEOUT}
-    Page Should Contain    Cadastro realizado com sucesso

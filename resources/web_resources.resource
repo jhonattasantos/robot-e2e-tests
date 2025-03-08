@@ -13,15 +13,9 @@ ${CAMPO_NOME}              css:input[data-testid='nome']
 ${CAMPO_EMAIL}             css:input[data-testid='email']
 ${CAMPO_SENHA}             css:input[data-testid='password']
 ${CAMPO_SENHA_LOGIN}       css:input[data-testid='senha']
-${RADIO_ADMIN_SIM}         css:input[value='true']
-${RADIO_ADMIN_NAO}         css:input[value='false']
 ${BOTAO_CADASTRAR}         css:button[data-testid='cadastrar']
 ${BOTAO_ENTRAR}            css:button[data-testid='entrar']
-${LISTAR_PRODUTOS}         css:a[data-testid='listarProdutos']
-${ADICIONAR_CARRINHO}      css:button[data-testid='adicionarNaLista']
-${ADICIONAR_AO_CARRINHO}   css:button[data-testid='adicionar carrinho']
-${CARRINHO}                css:a[data-testid='shopping-cart']
-${FINALIZAR_COMPRA}        css:button[data-testid='checkout']
+
 
 *** Keywords ***
 # --- Setup e Teardown ---
@@ -50,8 +44,13 @@ Dado que estou na página de login
 
 Então devo ser redirecionado para a página inicial
     Wait Until Page Contains Element    css:div.jumbotron    timeout=${DEFAULT_TIMEOUT}
-    Wait Until Element Contains    css:div.jumbotron > h1   Serverest Store    timeout=${DEFAULT_TIMEOUT}
-    # Page Should Contain    Este é seu sistema para administrar seu ecommerce
+    Wait Until Element Contains    css:div.jumbotron > h1    Bem Vindo    timeout=${DEFAULT_TIMEOUT}
+    Page Should Contain    Este é seu sistema para administrar seu ecommerce
+    Page Should Contain Element    css:a[data-testid='listarProdutos'] 
+
+Então devo ser redirecionado para a página inicial com a lista de produtos
+    Wait Until Page Contains    Serverest Store    timeout=${DEFAULT_TIMEOUT}
+    Page Should Contain    Produtos
 
 E clico no botão Entrar
     Click Button    ${BOTAO_ENTRAR}
@@ -60,12 +59,35 @@ E clico no botão Entrar
 Dado que estou na página de cadastro de usuários
     Ir Para Página De Cadastro
 
-Dado que acesso a página de cadastro de usuários
-    Ir Para Página De Cadastro
-
 Então devo ver a mensagem de cadastro com sucesso
     Wait Until Page Contains    Cadastro realizado com sucesso    timeout=${DEFAULT_TIMEOUT}
     Page Should Contain    Cadastro realizado com sucesso
+
+Gerar dados do cadastro do usuário
+    [Documentation]    Gera dados de usuário aleatórios e retorna um dicionário
+    ${nome}=    Gerar Nome Completo
+    ${email}=   Gerar Email Faker
+    ${senha}=   Gerar Senha Aleatória
+
+    ${usuario}=    Create Dictionary    nome=${nome}    email=${email}    senha=${senha}
+    RETURN    ${usuario}
+
+Log Dados do Usuário
+    [Documentation]    Exibe os dados do usuário no log
+    [Arguments]    ${usuario}
+    Log    Usuário criado:
+    Log    Nome: ${usuario['nome']}
+    Log    Email: ${usuario['email']}
+    Log    Senha: ${usuario['senha']}
+
+Quando preencho o formulário com dados aleatórios
+    [Arguments]    ${nome}    ${email}    ${senha}    ${admin}=false
+    Input Text    ${CAMPO_NOME}    ${nome}
+    Input Text    ${CAMPO_EMAIL}    ${email}
+    Input Text    ${CAMPO_SENHA}    ${senha}
+    Run Keyword If    '${admin}' == 'true'    Select Checkbox    id=administrador
+    ...    ELSE    Unselect Checkbox    id=administrador
+
 
 # --- BDD Keywords para Fluxo de Compra ---
 Dado que acesso a página de login
@@ -77,7 +99,8 @@ Então devo ver a mensagem de sucesso
 
 # --- Ações de Cadastro ---
 Preencher Formulário De Cadastro
-    [Arguments]    ${nome}    ${email}    ${senha}    ${admin}=false
+    [Arguments]    ${email}    ${senha}    ${admin}=false
+    ${nome}=    Gerar Nome Completo
     Input Text    ${CAMPO_NOME}    ${nome}
     Input Text    ${CAMPO_EMAIL}    ${email}
     Input Text    ${CAMPO_SENHA}    ${senha}
@@ -97,44 +120,3 @@ Fazer Login
     Input Text    ${CAMPO_SENHA_LOGIN}    ${senha}
     Click Button    ${BOTAO_ENTRAR}
 
-Verificar Login Com Sucesso
-    Wait Until Page Contains Element    css:div.jumbotron    timeout=${DEFAULT_TIMEOUT}
-    Wait Until Element Contains    css:div.jumbotron > h1    Bem Vindo    timeout=${DEFAULT_TIMEOUT}
-
-# --- Ações de Compra ---
-Navegar Para Lista De Produtos
-    Wait Until Element Is Visible    ${LISTAR_PRODUTOS}    timeout=${DEFAULT_TIMEOUT}
-    Click Element    ${LISTAR_PRODUTOS}
-    Wait Until Page Contains    Lista de Produtos    timeout=${DEFAULT_TIMEOUT}
-
-Adicionar Produto Ao Carrinho
-    [Arguments]    ${index}=1
-    ${locator}=    Set Variable    (${ADICIONAR_CARRINHO})[${index}]
-    Wait Until Element Is Visible    ${locator}    timeout=${DEFAULT_TIMEOUT}
-    Click Element    ${locator}
-    Wait Until Page Contains    Produto adicionado    timeout=${DEFAULT_TIMEOUT}
-
-Acessar Carrinho
-    Wait Until Element Is Visible    ${CARRINHO}    timeout=${DEFAULT_TIMEOUT}
-    Click Element    ${CARRINHO}
-    Wait Until Page Contains    Seu Carrinho    timeout=${DEFAULT_TIMEOUT}
-
-Finalizar Compra
-    Wait Until Element Is Visible    ${FINALIZAR_COMPRA}    timeout=${DEFAULT_TIMEOUT}
-    Click Element    ${FINALIZAR_COMPRA}
-    Wait Until Page Contains    Compra realizada com sucesso    timeout=${DEFAULT_TIMEOUT}
-
-# --- Fluxos Completos ---
-Fluxo De Cadastro Completo
-    [Arguments]    ${nome}    ${email}    ${senha}    ${admin}=false
-    Ir Para Página De Cadastro
-    Preencher Formulário De Cadastro    ${nome}    ${email}    ${senha}    ${admin}
-    Submeter Cadastro
-    Verificar Cadastro Com Sucesso
-    [Return]    ${email}
-
-Fluxo De Login Completo
-    [Arguments]    ${email}    ${senha}
-    Ir Para Página De Login
-    Fazer Login    ${email}    ${senha}
-    Verificar Login Com Sucesso

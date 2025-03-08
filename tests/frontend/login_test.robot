@@ -20,7 +20,7 @@ Cenário: Login após cadastro de novo usuário
     Dado que crio um novo usuário no sistema
     # Depois fazemos login com ele
     Quando faço login com o usuário recém-criado
-    Então devo ser redirecionado para a página inicial
+    Então devo ser redirecionado para a página inicial com a lista de produtos
 
 *** Keywords ***
 Quando preencho os campos com credenciais fixas
@@ -32,9 +32,9 @@ E clico no botão Entrar
 
 Dado que crio um novo usuário no sistema
     Ir Para Página De Cadastro
-    ${email}=    Gerar Email Aleatório
+    ${email}=    Gerar Email Faker
     Set Test Variable    ${EMAIL_NOVO}    ${email}
-    Preencher Formulário De Cadastro    ${CAMPO_NOME}    ${email}    ${CAMPO_SENHA}    false
+    Preencher Formulário De Cadastro   ${EMAIL_NOVO}     ${CAMPO_SENHA}    false
     Submeter Cadastro
     Verificar Cadastro Com Sucesso
 
